@@ -1,15 +1,21 @@
-import { IsMongoId, IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { ApiProperty } from "@nestjs/swagger";
+import { IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
 
 export class CreateProductionRequestDto {
 
+    @IsNotEmpty()
     @IsString()
-    @IsOptional()
+    @ApiProperty()
     name: string
 
     @IsNotEmpty()
+    @IsNumber()
+    @ApiProperty()
     price: number
 
     @IsNotEmpty()
+    @IsNumber()
+    @ApiProperty()
     stock: number
 }
 

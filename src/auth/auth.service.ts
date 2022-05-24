@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { LoginRequestDto, LoginResponseDto } from 'src/users/dtos';
@@ -12,23 +12,30 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  // async login(user: any) {
-  //   const payload = { username: user.username, sub: user.userId };
-  //   return {
-  //     access_token: this.jwtService.sign(payload),
-  //   };
-  // }
+  async authenticateUser(body: LoginRequestDto): Promise<LoginResponseDto> {
+    try {
+      const { email, password } = body;
+      const user = await this.userService.findUserByEmail(email);
 
-    async login(body: LoginRequestDto): Promise<LoginResponseDto> {
-    const { email, password } = body;
-    const user = await this.userService.findUserByEmail(email);
+      await this.verifyPassword(password, user.password);
 
-    const isMatch = await bcrypt.compare(password, user.password)
-    if (!isMatch) {
-      throw new Error()
+      const payload = { email, role: user.role, userId: user._id };
+      const accessToken = this.jwtService.sign(payload);
+      return new LoginResponseDto(user, accessToken);
+    } catch (error) {
+      throw new HttpException('Wrong credentials', HttpStatus.BAD_REQUEST);
     }
-    const accessToken = this.jwtService.sign(email)
-    console.log(accessToken)
-    return new LoginResponseDto(user, accessToken) 
   }
+
+  async verifyPassword(plainTextPassword: string, hashedPassword: string) {
+    const isPasswordMatching = await bcrypt.compare(
+      plainTextPassword,
+      hashedPassword,
+    );
+
+    if (!isPasswordMatching) {
+      throw new HttpException('Wrong credentials', HttpStatus.BAD_REQUEST);
+    }
+  }
+  
 }

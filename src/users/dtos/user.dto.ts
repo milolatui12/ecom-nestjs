@@ -1,7 +1,7 @@
 import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
 import { Role } from '../roles/role.enum';
 import { ApiProperty } from '@nestjs/swagger';
-import { Users } from '../users.schema';
+import { Users, UsersDocument } from '../users.schema';
 
 export class CreateUserRequestDto {
   @IsNotEmpty()
@@ -72,9 +72,17 @@ export class LoginRequestDto {
   @IsString()
   @ApiProperty()
   password: string;
+
+  constructor(email: string, password: string) {
+    this.email = email;
+    this.password = password;
+  }
 }
 
 export class LoginResponseDto {
+  @ApiProperty()
+  userId: string;
+
   @ApiProperty()
   firstName: string;
 
@@ -96,7 +104,8 @@ export class LoginResponseDto {
   @ApiProperty()
   accessToken: string;
 
-  constructor(user: Users, accessToken) {
+  constructor(user: UsersDocument, accessToken) {
+    this.userId = user._id || null
     this.firstName = user.firstName || null;
     this.lastName = user.lastName || null;
     this.phoneNumber = user.phoneNumber || null;

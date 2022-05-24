@@ -11,9 +11,6 @@ export class Shops {
 
   @Prop({ type: mongoose.Schema.Types.ObjectId })
   userId: string;
-
-  @Prop({ type: mongoose.Schema.Types.ObjectId })
-  prodIds: string[];
 }
 
 export const ShopsSchema = SchemaFactory.createForClass(Shops);
